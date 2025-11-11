@@ -99,11 +99,12 @@ class CreateCustomer(graphene.Mutation):
             return CreateCustomer(customer=None, message="Failed", errors=errors)
 
         try:
-            customer = Customer.objects.create(
+            customer = Customer(
                 name=input.name,
                 email=input.email,
                 phone=input.get('phone')
             )
+            customer.save()
             return CreateCustomer(
                 customer=customer,
                 message="Customer created successfully",
@@ -139,11 +140,12 @@ class BulkCreateCustomers(graphene.Mutation):
                         errors.append(f"Row {idx+1}: Invalid phone number format")
                         continue
 
-                    customer = Customer.objects.create(
+                    customer = Customer(
                         name=customer_data.name,
                         email=customer_data.email,
                         phone=customer_data.get('phone')
                     )
+                    customer.save()
                     created_customers.append(customer)
                 except Exception as e:
                     errors.append(f"Row {idx+1}: {str(e)}")
@@ -182,11 +184,12 @@ class CreateProduct(graphene.Mutation):
             return CreateProduct(product=None, message="Failed", errors=errors)
 
         try:
-            product = Product.objects.create(
+            product = Product(
                 name=input.name,
                 price=input.price,
                 stock=stock
             )
+            product.save()
             return CreateProduct(
                 product=product,
                 message="Product created successfully",
@@ -237,10 +240,11 @@ class CreateOrder(graphene.Mutation):
             total_amount = sum(product.price for product in products)
 
             # Create order
-            order = Order.objects.create(
+            order = Order(
                 customer=customer,
                 total_amount=total_amount
             )
+            order.save()
 
             # Associate products
             order.products.set(products)
