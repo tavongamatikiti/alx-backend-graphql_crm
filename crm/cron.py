@@ -3,6 +3,8 @@ Cron jobs for the CRM application
 """
 from datetime import datetime
 import requests
+from gql import gql, Client
+from gql.transport.requests import RequestsHTTPTransport
 
 
 def log_crm_heartbeat():
@@ -21,16 +23,17 @@ def log_crm_heartbeat():
 
     # Optional: Query GraphQL hello field to verify endpoint is responsive
     try:
-        response = requests.post(
-            'http://localhost:8000/graphql',
-            json={'query': '{ hello }'},
-            timeout=5
+        transport = RequestsHTTPTransport(
+            url='http://localhost:8000/graphql',
+            use_json=True,
         )
-        if response.status_code == 200:
-            result = response.json()
-            if result.get('data', {}).get('hello'):
-                with open(log_file, 'a') as f:
-                    f.write(f"{timestamp} GraphQL endpoint responsive\n")
+        client = Client(transport=transport, fetch_schema_from_transport=False)
+        query = gql('{ hello }')
+        result = client.execute(query)
+
+        if result.get('hello'):
+            with open(log_file, 'a') as f:
+                f.write(f"{timestamp} GraphQL endpoint responsive\n")
     except Exception as e:
         # Log error but don't fail the heartbeat
         with open(log_file, 'a') as f:
