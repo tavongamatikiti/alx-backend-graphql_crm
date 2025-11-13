@@ -1,0 +1,1 @@
+../alx_backend_graphql/settings.py
