@@ -7,6 +7,7 @@ import re
 from decimal import Decimal
 
 from .models import Customer, Product, Order
+from crm.models import Product
 
 
 # GraphQL Types
